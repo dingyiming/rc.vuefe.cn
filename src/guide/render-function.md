@@ -275,6 +275,121 @@ render: function (createElement) {
 }
 ```
 
+### `v-model`
+
+在render函数中，没有提供`v-model`的实现，所以你需要自己实现逻辑：
+
+```js
+render: function (createElement) {
+  var self = this
+  return createElement('input', {
+    domProps: {
+      value: self.value
+    },
+    on: {
+      input: function (event) {
+        self.value = event.target.value
+      }
+    }
+  })
+}
+```
+
+This is the cost of going lower-level, but it also gives you much more control over the interaction details compared to `v-model`.
+
+### Event & Key Modifiers
+
+对于 `.capture` 和 `.once` 这样的事件修饰符, Vue 提供了用于 `on` 的前缀:
+
+| Modifier(s) | Prefix |
+| ------ | ------ |
+| `.capture` | `!` |
+| `.once` | `~` |
+| `.capture.once` or<br>`.once.capture` | `~!` |
+
+For example:
+
+```javascript
+on: {
+  '!click': this.doThisInCapturingMode,
+  '~keyup': this.doThisOnce,
+  `~!mouseover`: this.doThisOnceInCapturingMode
+}
+```
+
+对于其他的事件和关键字修饰符, 你可以在处理程序中使用事件方法实现：
+
+| Modifier(s) | Equivalent in Handler |
+| ------ | ------ |
+| `.stop` | `event.stopPropagation()` |
+| `.prevent` | `event.preventDefault()` |
+| `.self` | `if (event.target !== event.currentTarget) return` |
+| Keys:<br>`.enter`, `.13` | `if (event.keyCode !== 13) return` (change `13` to [another key code](http://keycode.info/) for other key modifiers) |
+| Modifiers Keys:<br>`.ctrl`, `.alt`, `.shift`, `.meta` | `if (!event.ctrlKey) return` (change `ctrlKey` to `altKey`, `shiftKey`, or `metaKey`, respectively) |
+
+这里是所有修饰符一起使用的例子:
+
+```javascript
+on: {
+  keyup: function (event) {
+    // Abort if the element emitting the event is not
+    // the element the event is bound to
+    if (event.target !== event.currentTarget) return
+    // Abort if the key that went up is not the enter
+    // key (13) and the shift key was not held down
+    // at the same time
+    if (!event.shiftKey || event.keyCode !== 13) return
+    // Stop event propagation
+    event.stopPropagation()
+    // Prevent the default keyup handler for this element
+    event.preventDefault()
+    // ...
+  }
+}
+```
+
+### Slots
+
+使用[`this.$slots`](http://vuejs.org/v2/api/#vm-slots)访问静态插槽内容：
+
+``` js
+render: function (createElement) {
+  // <div><slot></slot></div>
+  return createElement('div', this.$slots.default)
+}
+```
+
+使用[`this.$scopedSlots`](http://vuejs.org/v2/api/#vm-scopedSlots)访问作用域插槽作为返回VNodes的函数:
+
+``` js
+render: function (createElement) {
+  // <div><slot :text="msg"></slot></div>
+  return createElement('div', [
+    this.$scopedSlots.default({
+      text: this.msg
+    })
+  ])
+}
+```
+
+使用render函数传递作用于插槽到子组件，使用VNode数据中的`scopedSlots`关键字：
+
+``` js
+render (createElement) {
+  return createElement('div', [
+    createElement('child', {
+      // pass scopedSlots in the data object
+      // in the form of { name: props => VNode | Array<VNode> }
+      scopedSlots: {
+        default: function (props) {
+          return createElement('span', props.text)
+        }
+      }
+    })
+  ])
+}
+```
+
 ## JSX
 
 如果你写了很多 `render`  函数，可能会觉得痛苦：
