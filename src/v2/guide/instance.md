@@ -8,7 +8,7 @@ order: 3
 
 每个 Vue 应用程序都是通过 `Vue` 函数创建出一个新的 **Vue 实例**开始的：
 
-``` js
+```js
 var vm = new Vue({
   // 选项
 })
@@ -22,13 +22,13 @@ Vue 应用程序由「一个使用 `new Vue` 创建的 **Vue 根实例**」、�
 
 ```
 根实例(Root Instance)
-|- TodoList
-   |- TodoItem
-      |- DeleteTodoButton
-      |- EditTodoButton
-   |- TodoListFooter
-      |- ClearTodosButton
-      |- TodoListStatistics
+└─ TodoList
+   ├─ TodoItem
+   │  ├─ DeleteTodoButton
+   │  └─ EditTodoButton
+   └─ TodoListFooter
+      ├─ ClearTodosButton
+      └─ TodoListStatistics
 ```
 
 稍后，我们将详细介绍[组件系统](components.html)。现在，只需要知道，所有 Vue 组件，都是 Vue 实例，并且组件都接收相同的选项对象（除了一些根实例特有(root-specific)的选项）。
@@ -37,7 +37,7 @@ Vue 应用程序由「一个使用 `new Vue` 创建的 **Vue 根实例**」、�
 
 在创建 Vue 实例时，会将所有在 `data` 对象中找到的属性，都添加到 Vue 的**响应式系统**中。每当这些属性的值发生变化时，视图都会“及时响应”，并更新相应的新值。
 
-``` js
+```js
 // data 对象
 var data = { a: 1 }
 
@@ -61,13 +61,13 @@ vm.a // => 3
 
 每当 data 对象发生变化，都会触发视图重新渲染。值得注意的是，如果实例已经创建，那么只有那些 `data` 中的原本就已经存在的属性，才是**响应式**的。也就是说，如果在实例创建之后，添加一个新的属性，例如：
 
-``` js
+```js
 vm.b = 'hi'
 ```
 
-然后，修改 `b` 不会触发任何视图更新。如果你已经提前知道，之后将会用到一个开始是空的或不存在的属性，你就需要预先设置一些初始值。例如：
+然后，修改 `b` 不会触发任何视图更新。如果你已经提前知道，之后将会用到一个开始是空的或不存在的属性，你需要预先设置一些初始值。例如：
 
-``` js
+```js
 data: {
   newTodoText: '',
   visitCount: 0,
@@ -77,9 +77,36 @@ data: {
 }
 ```
 
+这里唯一的例外是，使用 `Object.freeze()` 来防止已有属性被修改，这也意味着响应式系统无法_追踪_变化。
+
+```js
+var obj = {
+  foo: 'bar'
+}
+
+Object.freeze(obj)
+
+new Vue({
+  el: '#app',
+  data () {
+    return {
+      obj
+    }
+  }
+})
+```
+
+```html
+<div id="app">
+  <p>{{ obj.foo }}</p>
+  <!-- 这将不再更新 obj.foo! -->
+  <button @click="obj.foo = 'baz'">点我修改</button>
+</div>
+```
+
 除了 data 属性， Vue 实例还暴露了一些有用的实例属性和方法。这些属性与方法都具有前缀 `$`，以便与用户定义(user-defined)的属性有所区分。例如：
 
-``` js
+```js
 var data = { a: 1 }
 var vm = new Vue({
   el: '#example',
@@ -103,7 +130,7 @@ vm.$watch('a', function (newValue, oldValue) {
 
 例如，在实例创建后将调用 [`created`](../api/#created) 钩子函数：
 
-``` js
+```js
 new Vue({
   data: {
     a: 1
@@ -118,7 +145,7 @@ new Vue({
 
 也有一些其它的钩子，会在实例生命周期的不同阶段调用，如 [`mounted`](../api/#mounted)、[`updated`](../api/#updated) 和 [`destroyed`](../api/#destroyed)。所有的钩子函数在调用时，其 `this` 上下文都会指向调用它的 Vue 实例。
 
-<p class="tip">不要在选项属性或者回调函数中使用[箭头函数](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/Arrow_functions)（例如，`created: () => console.log(this.a)` 或 `vm.$watch('a', newValue => this.myMethod())`）。因为箭头函数会绑定父级上下文，所以 `this` 不会按照预期指向 Vue 实例，然后 `this.a` 或 `this.myMethod` 将是 undefined。</p>
+<p class="tip">不要在选项属性或者回调函数中使用[箭头函数](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/Arrow_functions)（例如，`created: () => console.log(this.a)` 或 `vm.$watch('a', newValue => this.myMethod())`）。因为箭头函数会绑定父级上下文，所以 `this` 不会按照预期指向 Vue 实例，经常会产生一些错误，例如 `Uncaught TypeError: Cannot read property of undefined` 或者 `Uncaught TypeError: this.myMethod is not a function`。</p>
 
 ## 生命周期示意图
 
