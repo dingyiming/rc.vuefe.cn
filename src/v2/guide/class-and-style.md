@@ -197,7 +197,7 @@ data: {
 
 > 2.3.0+
 
-从 2.3.0+ 起，你可以为每个 style 属性提供一个含有多个（前缀）值的数组，例如：
+从 2.3.0+ 起，你可以为每个 style 属性提供一个或有多个（前缀）值的数组，例如：
 
 ``` html
 <div v-bind:style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
