@@ -784,7 +784,7 @@ type: api
 
   在实例挂载之后调用，其中 `el` 被新创建的 `vm.$el` 替代。如果 root 实例挂载了一个文档内元素，当 `mounted` 被调用时 `vm.$el` 也在文档内。
 
-  **请注意**，`mounted`**并不**保证所有子组件也已`mounted`。 如果你需要等整个视图被渲染，你可以在`mounted`中使用[vm.$nextTick](#vm-nextTick):
+  **请注意**，`mounted`**并不能**保证所有子组件都被`mounted`。 如果你需要等整个视图渲染完毕，你可以在`mounted`中使用[vm.$nextTick](#vm-nextTick):
 
   ``` js
   mounted: function () {
@@ -821,7 +821,7 @@ type: api
 
   当这个钩子被调用时，组件 DOM 已经更新，所以你现在可以执行依赖于 DOM 的操作。然而在大多数情况下，你应该避免在此期间更改状态。如果要相应状态改变，通常最好使用[计算属性](#computed)或 [watcher](#watch) 取而代之。
 
-  **请注意**，`updated`**并不**保证所有子组件也已`updated`。 如果你需要等整个视图被渲染，你可以在`updated`中使用[vm.$nextTick](#vm-nextTick):
+  **请注意**，`updated`**并不能**保证所有子组件都被`updated`。 如果你需要等整个视图渲染完毕，你可以在`updated`中使用[vm.$nextTick](#vm-nextTick):
 
   ``` js
   updated: function () {
